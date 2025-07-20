@@ -6,8 +6,8 @@
 
 void drawLayoutDefault(const char *statusLine1, const char *statusLine2)
 {
-  // Draw EEPROM write request icon
-  drawEepromIndicator(SAVE_OFFSET_X, SAVE_OFFSET_Y);
+  // Draw preferences write request icon
+  drawSaveIndicator(SAVE_OFFSET_X, SAVE_OFFSET_Y);
 
   // Draw BLE icon
   drawBleIndicator(BLE_OFFSET_X, BLE_OFFSET_Y);

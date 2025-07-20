@@ -6,13 +6,13 @@
 #include "Draw.h"
 
 //
-// Draw EEPROM write indicator
+// Draw preferences write indicator
 //
-void drawEepromIndicator(int x, int y)
+void drawSaveIndicator(int x, int y)
 {
-  if(eepromIsWritten() || switchThemeEditor())
+  if(prefsAreWritten() || switchThemeEditor())
   {
-    // Draw EEPROM write request icon
+    // Draw preferences write request icon
     spr.fillRect(x+3, y+2, 3, 5, TH.save_icon);
     spr.fillTriangle(x+1, y+7, x+7, y+7, x+4, y+10, TH.save_icon);
     spr.drawLine(x, y+12, x, y+13, TH.save_icon);

@@ -4,7 +4,6 @@
 
 #include "Common.h"
 #include <Wire.h>
-#include "EEPROM.h"
 #include "Rotary.h"
 #include "Button.h"
 #include "Menu.h"
@@ -154,12 +153,12 @@ void setup()
   spr.setFreeFont(&Orbitron_Light_24);
   spr.setTextColor(TH.text, TH.bg);
 
-  // Press and hold Encoder button to force an EEPROM reset
+  // Press and hold Encoder button to force an preferences reset
   // Note: EEPROM reset is recommended after firmware updates
   if(digitalRead(ENCODER_PUSH_BUTTON)==LOW)
   {
     netClearPreferences();
-    eepromInvalidate();
+    prefsInvalidate();
     diskInit(true);
 
     ledcWrite(PIN_LCD_BL, 255);       // Default value 255 = 100%
@@ -168,7 +167,7 @@ void setup()
     tft.println(getVersion(true));
     tft.println();
     tft.setTextColor(TH.text_warn, TH.bg);
-    tft.print("EEPROM Resetting");
+    tft.print("Resetting Preferences");
     while(digitalRead(ENCODER_PUSH_BUTTON) == LOW) delay(100);
   }
 
@@ -202,35 +201,25 @@ void setup()
   // After the SI4732 has been setup, enable the audio amplifier
   digitalWrite(PIN_AMP_EN, HIGH);
 
-  // If EEPROM contents are ok...
-  if(eepromVerify())
+  // If loading preferences fails...
+  if(!prefsLoad(SAVE_ALL))
   {
-    // Load configuration from EEPROM
-    eepromLoadConfig();
-  }
-  else
-  {
-    // Save default configuration to EEPROM
-    eepromSaveConfig();
+    // Save default preferences
+    prefsSave(SAVE_ALL);
+    // Show initial screen with the QR code
+    spr.fillSprite(TH.bg);
+    ledcWrite(PIN_LCD_BL, currentBrt);
+    drawAboutHelp(0);
+    // Wait for an encoder click
+    while(digitalRead(ENCODER_PUSH_BUTTON)!=LOW) delay(100);
+    while(digitalRead(ENCODER_PUSH_BUTTON)==LOW) delay(100);
   }
 
-  // ** SI4732 STARTUP **
-  // Uses values from EEPROM (Last stored or defaults after EEPROM reset)
+  // SI4732 STARTUP!
   selectBand(bandIdx, false);
   delay(50);
   rx.setVolume(volume);
   rx.setMaxSeekTime(SEEK_TIMEOUT);
-
-  // Show help screen on first run
-  if(eepromFirstRun())
-  {
-    // Clear screen buffer
-    spr.fillSprite(TH.bg);
-    ledcWrite(PIN_LCD_BL, currentBrt);
-    drawAboutHelp(0);
-    while(digitalRead(ENCODER_PUSH_BUTTON) != LOW) delay(100);
-    while(digitalRead(ENCODER_PUSH_BUTTON) == LOW) delay(100);
-  }
 
   // Draw display for the first time
   drawScreen();
@@ -703,7 +692,7 @@ void loop()
     pb1st.wasClicked |= !!(revent & REMOTE_CLICK);
     int direction = revent >> REMOTE_DIRECTION;
     encoderCount = direction? direction : encoderCount;
-    if(revent & REMOTE_EEPROM) eepromRequestSave();
+    if(revent & REMOTE_EEPROM) prefsRequestSave(SAVE_ALL);
   }
 #endif
 
@@ -736,7 +725,8 @@ void loop()
         case CMD_SEEK:
           // Normal tuning in seek mode
           needRedraw |= doTune(encoderCount);
-          eepromRequestSave();
+          // Current frequency may have changed
+          prefsRequestSave(SAVE_CUR_BAND);
           break;
       }
 
@@ -756,26 +746,33 @@ void loop()
         case CMD_NONE:
           // Tuning
           needRedraw |= doTune(encoderCount);
+          // Current frequency may have changed
+          prefsRequestSave(SAVE_CUR_BAND);
           break;
         case CMD_FREQ:
           // Digit tuning
           needRedraw |= doDigit(encoderCount);
+          // Current frequency may have changed
+          prefsRequestSave(SAVE_CUR_BAND);
           break;
         case CMD_SEEK:
           // Seek mode
           needRedraw |= doSeek(encoderCount);
           // Seek can take long time, renew the timestamp
           currentTime = millis();
+          // Current frequency may have changed
+          prefsRequestSave(SAVE_CUR_BAND);
           break;
         default:
           // Side bar menus / settings
           needRedraw |= doSideBar(currentCmd, encoderCount);
+          // Current settings, etc. may have changed
+          prefsRequestSave(SAVE_ALL);
           break;
       }
 
       // Reset timeouts
       elapsedSleep = elapsedCommand = currentTime;
-      eepromRequestSave();
 
       // Clear encoder rotation
       encoderCount = 0;
@@ -898,9 +895,9 @@ void loop()
     lastNTPCheck = currentTime;
   }
 
-  // Tick EEPROM time, saving changes if the occurred and there has
+  // Tick preferences time, saving changes when there has
   // been no activity for a while
-  eepromTickTime();
+  prefsTickTime();
 
   // Tick NETWORK time, connecting to WiFi if requested
   netTickTime();

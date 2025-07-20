@@ -10,7 +10,6 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <NTPClient.h>
-#include <Preferences.h>
 #include <ESPmDNS.h>
 
 #define CONNECT_TIME  3000  // Time of inactivity to start connecting WiFi
@@ -29,14 +28,9 @@ static uint16_t ajaxInterval = 2500;
 static bool itIsTimeToWiFi = false; // TRUE: Need to connect to WiFi
 static uint32_t connectTime = millis();
 
-static const char *eepromStatus = "No EEPROM data";
-
 // Settings
 String loginUsername = "";
 String loginPassword = "";
-
-// Network preferences saved here
-Preferences preferences;
 
 // AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -50,8 +44,6 @@ static bool wifiConnect();
 static void webInit();
 
 static void webSetConfig(AsyncWebServerRequest *request);
-static void webReadEEPROM(AsyncWebServerRequest *request);
-static void webWriteEEPROM(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool lastChunk);
 
 static const String webInputField(const String &name, const String &value, bool pass = false);
 static const String webStyleSheet();
@@ -87,9 +79,9 @@ void netTickTime()
 //
 void netClearPreferences()
 {
-  preferences.begin("configData", false);
-  preferences.clear();
-  preferences.end();
+  prefs.begin("network", false);
+  prefs.clear();
+  prefs.end();
 }
 
 //
@@ -263,9 +255,9 @@ static bool wifiConnect()
   String status = "Connecting to WiFi network..";
 
   // Get the preferences
-  preferences.begin("configData", true);
-  loginUsername = preferences.getString("loginusername", "");
-  loginPassword = preferences.getString("loginpassword", "");
+  prefs.begin("network", true);
+  loginUsername = prefs.getString("loginusername", "");
+  loginPassword = prefs.getString("loginpassword", "");
 
   // Try connecting to known WiFi networks
   for(int j=0 ; (j<3) && (WiFi.status()!=WL_CONNECTED) ; j++)
@@ -274,8 +266,8 @@ static bool wifiConnect()
     sprintf(nameSSID, "wifissid%d", j+1);
     sprintf(namePASS, "wifipass%d", j+1);
 
-    String ssid = preferences.getString(nameSSID, "");
-    String password = preferences.getString(namePASS, "");
+    String ssid = prefs.getString(nameSSID, "");
+    String password = prefs.getString(namePASS, "");
 
     if(ssid != "")
     {
@@ -298,7 +290,7 @@ static bool wifiConnect()
   }
 
   // Done with preferences
-  preferences.end();
+  prefs.end();
 
   // If failed connecting to WiFi network...
   if(WiFi.status()!=WL_CONNECTED)
@@ -348,25 +340,16 @@ static void webInit()
   // This method saves configuration form contents
   server.on("/setconfig", HTTP_ANY, webSetConfig);
 
-  // These methods let user read and write EEPROM
-  server.on("/ats-mini-eeprom.bin", HTTP_ANY, webReadEEPROM);
-  server.on("/writeeeprom", HTTP_POST, [](AsyncWebServerRequest *request) {
-      request->send(200, "text/plain", eepromStatus);
-      eepromStatus = "No EEPROM data";
-    },
-    webWriteEEPROM
-  );
-
   // Start web server
   server.begin();
 }
 
 void webSetConfig(AsyncWebServerRequest *request)
 {
-  bool eepromSave = false;
+  uint32_t prefsSave = 0;
 
   // Start modifying preferences
-  preferences.begin("configData", false);
+  prefs.begin("network", false);
 
   // Save user name and password
   if(request->hasParam("username", true) && request->hasParam("password", true))
@@ -374,8 +357,8 @@ void webSetConfig(AsyncWebServerRequest *request)
     loginUsername = request->getParam("username", true)->value();
     loginPassword = request->getParam("password", true)->value();
 
-    preferences.putString("loginusername", loginUsername);
-    preferences.putString("loginpassword", loginPassword);
+    prefs.putString("loginusername", loginUsername);
+    prefs.putString("loginpassword", loginPassword);
   }
 
   // Save SSIDs and their passwords
@@ -391,8 +374,8 @@ void webSetConfig(AsyncWebServerRequest *request)
     {
       String ssid = request->getParam(nameSSID, true)->value();
       String pass = request->getParam(namePASS, true)->value();
-      preferences.putString(nameSSID, ssid);
-      preferences.putString(namePASS, pass);
+      prefs.putString(nameSSID, ssid);
+      prefs.putString(namePASS, pass);
       haveSSID |= ssid != "" && pass != "";
     }
   }
@@ -403,7 +386,7 @@ void webSetConfig(AsyncWebServerRequest *request)
     String utcOffset = request->getParam("utcoffset", true)->value();
     utcOffsetIdx = utcOffset.toInt();
     clockRefreshTime();
-    eepromSave = true;
+    prefsSave |= SAVE_SETTINGS;
   }
 
   // Save theme
@@ -411,19 +394,19 @@ void webSetConfig(AsyncWebServerRequest *request)
   {
     String theme = request->getParam("theme", true)->value();
     themeIdx = theme.toInt();
-    eepromSave = true;
+    prefsSave |= SAVE_SETTINGS;
   }
 
   // Save scroll direction and menu zoom
   scrollDirection = request->hasParam("scroll", true)? -1 : 1;
   zoomMenu        = request->hasParam("zoom", true);
-  eepromSave = true;
+  prefsSave |= SAVE_SETTINGS;
 
   // Done with the preferences
-  preferences.end();
+  prefs.end();
 
-  // Save EEPROM immediately
-  if(eepromSave) eepromRequestSave(true);
+  // Save preferences immediately
+  prefsRequestSave(prefsSave, true);
 
   // Show config page again
   request->redirect("/config");
@@ -432,41 +415,6 @@ void webSetConfig(AsyncWebServerRequest *request)
   // and there is at least one SSID / PASS pair, request network connection
   if(haveSSID && (wifiModeIdx>NET_AP_ONLY) && (WiFi.status()!=WL_CONNECTED))
     netRequestConnect();
-}
-
-static void webReadEEPROM(AsyncWebServerRequest *request)
-{
-  uint8_t buf[EEPROM_SIZE];
-
-  if(!eepromReadBinary(buf, sizeof(buf)))
-    request->send(200, "text/plain", "Failed reading EEPROM");
-  else
-  {
-    AsyncWebServerResponse *response = request->beginResponse(200, "application/octet-stream", buf, sizeof(buf));
-    char hdr[100];
-    sprintf(hdr, "attachment; filename=ats-mini-eeprom-%hu-%hu.bin", APP_VERSION, EEPROM_VERSION);
-    response->addHeader("Content-Disposition", hdr);
-    request->send(response);
-  }
-}
-
-static void webWriteEEPROM(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool lastChunk)
-{
-  static uint8_t buf[EEPROM_SIZE];
-
-  // Fill in the buffer with incoming chunks
-  if(index+len <= sizeof(buf)) memcpy(buf+index, data, len);
-
-  // When last chunk received...
-  if(lastChunk)
-  {
-    if(!eepromVerify(buf))
-      eepromStatus = "Wrong EEPROM version";
-    else if(!eepromRequestUpdate(buf, sizeof(buf)))
-      eepromStatus = "Failed writing EEPROM";
-    else
-      eepromStatus = "Wrote EEPROM";
-  }
 }
 
 static const String webInputField(const String &name, const String &value, bool pass)
@@ -681,14 +629,14 @@ static const String webMemoryPage()
 
 const String webConfigPage()
 {
-  preferences.begin("configData", true);
-  String ssid1 = preferences.getString("wifissid1", "");
-  String pass1 = preferences.getString("wifipass1", "");
-  String ssid2 = preferences.getString("wifissid2", "");
-  String pass2 = preferences.getString("wifipass2", "");
-  String ssid3 = preferences.getString("wifissid3", "");
-  String pass3 = preferences.getString("wifipass3", "");
-  preferences.end();
+  prefs.begin("network", true);
+  String ssid1 = prefs.getString("wifissid1", "");
+  String pass1 = prefs.getString("wifipass1", "");
+  String ssid2 = prefs.getString("wifissid2", "");
+  String pass2 = prefs.getString("wifipass2", "");
+  String ssid3 = prefs.getString("wifissid3", "");
+  String pass3 = prefs.getString("wifipass3", "");
+  prefs.end();
 
   return webPage(
 "<H1>ATS-Mini Config</H1>"
@@ -762,22 +710,5 @@ const String webConfigPage()
   "</TH></TR>"
   "</TABLE>"
 "</FORM>"
-#if 0
-// @@@ Reenable once /writeeeprom stops breaking 30m band entry
-"<FORM ACTION='/writeeeprom' METHOD='POST' ENCTYPE='multipart/form-data'>"
-  "<TABLE COLUMNS=2>"
-  "<TR>"
-    "<TD CLASS='CENTER' COLSPAN=2><A HREF='/ats-mini-eeprom.bin'>Download EEPROM Contents...</A></TD>"
-  "</TR>"
-  "<TR>"
-    "<TD CLASS='LABEL'>Upload EEPROM Contents</TD>"
-    "<TD><INPUT TYPE='FILE' NAME='eeprom' ACCEPT='.bin'></TD>"
-  "</TR>"
-  "<TR><TH COLSPAN=2 CLASS='HEADING'>"
-    "<INPUT TYPE='SUBMIT' VALUE='Write EEPROM'>"
-  "</TH></TR>"
-  "</TABLE>"
-"</FORM>"
-#endif
 );
 }

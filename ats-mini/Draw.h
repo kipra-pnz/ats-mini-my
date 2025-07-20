@@ -11,8 +11,8 @@
 #define METER_OFFSET_Y   0    // Meter vertical offset
 #define ALT_METER_OFFSET_X  75    // Meter horizontal offset
 #define ALT_METER_OFFSET_Y 136    // Meter vertical offset
-#define SAVE_OFFSET_X   90    // EEPROM save icon horizontal offset
-#define SAVE_OFFSET_Y    0    // EEPROM save icon vertical offset
+#define SAVE_OFFSET_X   90    // Preferences save icon horizontal offset
+#define SAVE_OFFSET_Y    0    // Preferences save icon vertical offset
 #define FREQ_OFFSET_X  250    // Frequency horizontal offset
 #define FREQ_OFFSET_Y   62    // Frequency vertical offset
 #define FUNIT_OFFSET_X 255    // Frequency Unit horizontal offset
@@ -37,7 +37,7 @@ void drawZoomedMenu(const char *text);
 void drawScreen(const char *statusLine1 = 0, const char *statusLine2 = 0);
 
 void drawWiFiIndicator(int x, int y);
-void drawEepromIndicator(int x, int y);
+void drawSaveIndicator(int x, int y);
 void drawBleIndicator(int x, int y);
 void drawBandAndMode(const char *band, const char *mode, int x, int y);
 void drawFrequency(uint32_t freq, int x, int y, int ux, int uy, uint8_t hl);

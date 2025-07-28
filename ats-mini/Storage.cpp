@@ -51,25 +51,33 @@ void prefsInvalidate()
   prefs.end();
 }
 
+struct SavedBand
+{
+  uint8_t bandMode;       // Band mode (FM, AM, LSB, or USB)
+  uint16_t currentFreq;   // Current frequency
+  int8_t currentStepIdx;  // Current frequency step
+  int8_t bandwidthIdx;    // Index of the table bandwidthFM, bandwidthAM or bandwidthSSB;
+  int16_t bandCal;        // Calibration value
+};
+
 void prefsSaveBand(uint8_t idx)
 {
-  char name[32], value[128];
+  SavedBand value;
+  char name[32];
 
   // Will be saving to bands
   prefs.begin("bands", false);
 
   // Compose preference name and value
   sprintf(name, "Band-%d", idx);
-  sprintf(value, "%u,%u,%d,%d,%d",
-    bands[idx].currentFreq,     // Frequency
-    bands[idx].bandMode,        // Modulation
-    bands[idx].currentStepIdx,  // Step
-    bands[idx].bandwidthIdx,    // Bandwidth
-    bands[idx].bandCal          // Calibration
-  );
+  value.currentFreq    = bands[idx].currentFreq;     // Frequency
+  value.bandMode       = bands[idx].bandMode;        // Modulation
+  value.currentStepIdx = bands[idx].currentStepIdx;  // Step
+  value.bandwidthIdx   = bands[idx].bandwidthIdx;    // Bandwidth
+  value.bandCal        = bands[idx].bandCal;         // Calibration
 
   // Write a preference
-  prefs.putString(name, value);
+  prefs.putBytes(name, &value, sizeof(value));
   
   // Done with band preferences
   prefs.end();
@@ -77,50 +85,45 @@ void prefsSaveBand(uint8_t idx)
 
 bool prefsLoadBand(uint8_t idx)
 {
+  SavedBand value;
+  char name[32];
+
   // Will be loading from bands
   prefs.begin("bands", true);
 
-  char name[32];
+  // Compose preference name
   sprintf(name, "Band-%d", idx);
-  String value = prefs.getString(name, "");
-  unsigned int freq, mode;
-  int step, width, cal;
+
+  // Read preference
+  bool result = !!prefs.getBytes(name, &value, sizeof(value));
+  if(result)
+  {
+    bands[idx].currentFreq    = value.currentFreq;    // Frequency
+    bands[idx].bandMode       = value.bandMode;       // Modulation
+    bands[idx].currentStepIdx = value.currentStepIdx; // Step
+    bands[idx].bandwidthIdx   = value.bandwidthIdx;   // Bandwidth
+    bands[idx].bandCal        = value.bandCal;        // Calibration
+  }
 
   // Done with band preferences
   prefs.end();
 
-  // If successfully read all values...
-  if(value.length() && sscanf(value.c_str(), "%u,%u,%d,%d,%d", &freq, &mode, &step, &width, &cal) == 5)
-  {
-    bands[idx].currentFreq    = freq;   // Frequency
-    bands[idx].bandMode       = mode;   // Modulation
-    bands[idx].currentStepIdx = step;   // Step
-    bands[idx].bandwidthIdx   = width;  // Bandwidth
-    bands[idx].bandCal        = cal;    // Calibration
-    return(true);
-  }
-
-  // Failed to load
-  return(false);
+  // Done
+  return(result);
 }
 
 void prefsSaveMemory(uint8_t idx)
 {
-  char name[32], value[128];
+  char name[32];
 
   // Will be saving to memories
   prefs.begin("memories", false);
   
-  // Compose preference name and value
+  // Compose preference name
   sprintf(name, "Memory-%d", idx);
-  sprintf(value, "%u,%u,%u",
-    memories[idx].band,  // Band
-    memories[idx].freq,  // Frequency
-    memories[idx].mode   // Modulation
-  );
   
   // Write a preference
-  prefs.putString(name, value);
+  prefs.putBytes(name, &memories[idx], sizeof(memories[idx]));
   
   // Done with memory preferences
   prefs.end();
@@ -128,28 +131,22 @@ void prefsSaveMemory(uint8_t idx)
 
 bool prefsLoadMemory(uint8_t idx)
 {
+  char name[32];
+
   // Will be loading from memories
   prefs.begin("memories", true);
-  
-  char name[32];
+
+  // Compose preference name  
   sprintf(name, "Memory-%d", idx);
-  String value = prefs.getString(name, "");
-  unsigned int band, freq, mode;
+
+  // Write a preference
+  bool result = !!prefs.getBytes(name, &memories[idx], sizeof(memories[idx]));
 
   // Done with memory preferences
   prefs.end();
 
-  // If successfully read all values...
-  if(value.length() && sscanf(value.c_str(), "%u,%u,%u", &band, &freq, &mode) == 3)
-  {
-    memories[idx].band = band;  // Band
-    memories[idx].freq = freq;  // Frequency
-    memories[idx].mode = mode;  // Modulation
-    return(true);
-  }
-
-  // Failed to load
-  return(false);
+  // Done
+  return(result);
 }
 
 void prefsSave(uint32_t items)
@@ -237,29 +234,29 @@ bool prefsLoad(uint32_t items)
     prefs.begin("settings", true);
 
     // Load main global settings
-    volume         = prefs.getUChar("Volume");      // Current volume
-    bandIdx        = prefs.getUChar("Band");        // Current band
-    currentBFO     = prefs.getUShort("BFO");        // Current BFO % 1000
-    wifiModeIdx    = prefs.getUChar("WiFiMode");    // WiFi connection mode
-    currentBrt     = prefs.getUShort("Brightness"); // Brightness
-    FmAgcIdx       = prefs.getUChar("FmAGC");       // FM AGC/ATTN
-    AmAgcIdx       = prefs.getUChar("AmAGC");       // AM AGC/ATTN
-    SsbAgcIdx      = prefs.getUChar("SsbAGC");      // SSB AGC/ATTN
-    AmAvcIdx       = prefs.getUChar("AmAVC");       // AM AVC
-    SsbAvcIdx      = prefs.getUChar("SsbAVC");      // SSB AVC
-    AmSoftMuteIdx  = prefs.getUChar("AmSoftMute");  // AM soft mute
-    SsbSoftMuteIdx = prefs.getUChar("SsbSoftMute"); // SSB soft mute
-    currentSleep   = prefs.getUShort("Sleep");      // Sleep delay
-    themeIdx       = prefs.getUChar("Theme");       // Color theme
-    rdsModeIdx     = prefs.getUChar("RDSMode");     // RDS mode
-    sleepModeIdx   = prefs.getUChar("SleepMode");   // Sleep mode
-    zoomMenu       = prefs.getUChar("ZoomMenu");    // TRUE: Zoom menu
-    scrollDirection = prefs.getBool("ScrollDir")? -1:1; // TRUE: Reverse scroll
-    utcOffsetIdx   = prefs.getUChar("UTCOffset");   // UTC Offset
-    currentSquelch = prefs.getUChar("Squelch");     // Squelch
-    FmRegionIdx    = prefs.getUChar("FmRegion");    // FM region
-    uiLayoutIdx    = prefs.getUChar("UILayout");    // UI Layout
-    bleModeIdx     = prefs.getUChar("BLEMode");     // Bluetooth mode
+    volume         = prefs.getUChar("Volume", volume);          // Current volume
+    bandIdx        = prefs.getUChar("Band", bandIdx);           // Current band
+    currentBFO     = prefs.getUShort("BFO", currentBFO);        // Current BFO % 1000
+    wifiModeIdx    = prefs.getUChar("WiFiMode", wifiModeIdx);   // WiFi connection mode
+    currentBrt     = prefs.getUShort("Brightness", currentBrt); // Brightness
+    FmAgcIdx       = prefs.getUChar("FmAGC", FmAgcIdx);         // FM AGC/ATTN
+    AmAgcIdx       = prefs.getUChar("AmAGC", AmAgcIdx);         // AM AGC/ATTN
+    SsbAgcIdx      = prefs.getUChar("SsbAGC", SsbAgcIdx);       // SSB AGC/ATTN
+    AmAvcIdx       = prefs.getUChar("AmAVC", AmAvcIdx);         // AM AVC
+    SsbAvcIdx      = prefs.getUChar("SsbAVC", SsbAvcIdx);       // SSB AVC
+    AmSoftMuteIdx  = prefs.getUChar("AmSoftMute", AmSoftMuteIdx);   // AM soft mute
+    SsbSoftMuteIdx = prefs.getUChar("SsbSoftMute", SsbSoftMuteIdx); // SSB soft mute
+    currentSleep   = prefs.getUShort("Sleep", currentSleep);    // Sleep delay
+    themeIdx       = prefs.getUChar("Theme", themeIdx);         // Color theme
+    rdsModeIdx     = prefs.getUChar("RDSMode", rdsModeIdx);     // RDS mode
+    sleepModeIdx   = prefs.getUChar("SleepMode", sleepModeIdx); // Sleep mode
+    zoomMenu       = prefs.getUChar("ZoomMenu", zoomMenu);      // TRUE: Zoom menu
+    scrollDirection = prefs.getBool("ScrollDir", scrollDirection<0)? -1:1; // TRUE: Reverse scroll
+    utcOffsetIdx   = prefs.getUChar("UTCOffset", utcOffsetIdx); // UTC Offset
+    currentSquelch = prefs.getUChar("Squelch", currentSquelch); // Squelch
+    FmRegionIdx    = prefs.getUChar("FmRegion", FmRegionIdx);   // FM region
+    uiLayoutIdx    = prefs.getUChar("UILayout", uiLayoutIdx);   // UI Layout
+    bleModeIdx     = prefs.getUChar("BLEMode", bleModeIdx);     // Bluetooth mode
 
     // Done with global settings
     prefs.end();

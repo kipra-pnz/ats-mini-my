@@ -88,9 +88,9 @@ bool drawWiFiStatus(const char *statusLine1, const char *statusLine2, int x, int
 //
 // Draw zoomed menu item
 //
-void drawZoomedMenu(const char *text)
+void drawZoomedMenu(const char *text, bool force)
 {
-  if (!zoomMenu) return;
+  if (!zoomMenu && !force) return;
 
   spr.fillSmoothRoundRect(RDS_OFFSET_X - 70 + 1, RDS_OFFSET_Y - 3 + 1, 148, 26, 4, TH.menu_bg);
   spr.setTextDatum(TC_DATUM);

@@ -33,7 +33,7 @@
 #define BLE_OFFSET_Y     0    // BLE y offset
 
 void drawMessage(const char *msg);
-void drawZoomedMenu(const char *text);
+void drawZoomedMenu(const char *text, bool force = false);
 void drawScreen(const char *statusLine1 = 0, const char *statusLine2 = 0);
 
 void drawWiFiIndicator(int x, int y);

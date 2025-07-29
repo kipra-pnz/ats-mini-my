@@ -823,7 +823,10 @@ static void clickMenu(int cmd, bool shortPress)
     case MENU_SCAN:
       // Run a band scan around current frequency with the same
       // step as scale resolution (10kHz for AM, 100kHz for FM)
-      drawMessage("Scanning...");
+      currentCmd = CMD_SCAN;
+      drawScreen();
+      drawZoomedMenu("Scanning...", true);
+      spr.pushSprite(0, 0);
       scanRun(currentFrequency, 10);
       break;
   }
@@ -1100,6 +1103,20 @@ static void drawSeek(int x, int y, int sx)
     spr.drawLine(40+x+(sx/2), 66+y, 40+x+(sx/2), 66+y-7, TH.menu_param);
     spr.drawLine(40+x+(sx/2), 66+y, 40+x+(sx/2)+4, 66+y+4, TH.menu_param);
   }
+}
+
+static void drawScan(int x, int y, int sx)
+{
+  drawCommon(menu[MENU_SCAN], x, y, sx);
+  spr.drawSmoothArc(40+x+(sx/2), 66+y, 30, 27, 45, 180, TH.menu_param, TH.menu_bg);
+  spr.fillTriangle(40+x+(sx/2)-5, 66+y-32, 40+x+(sx/2)+5, 66+y-27, 40+x+(sx/2)-5, 66+y-22, TH.menu_param);
+  spr.drawSmoothArc(40+x+(sx/2), 66+y, 30, 27, 225, 360, TH.menu_param, TH.menu_bg);
+  spr.fillTriangle(40+x+(sx/2)+5, 66+y+32, 40+x+(sx/2)-5, 66+y+27, 40+x+(sx/2)+5, 66+y+22, TH.menu_param);
+
+  spr.drawLine(40+x+(sx/2)-17, 66+y+5, 40+x+(sx/2)-4, 66+y+5, TH.menu_param);
+  spr.drawLine(40+x+(sx/2)-4, 66+y+5, 40+x+(sx/2), 66+y-16+5, TH.menu_param);
+  spr.drawLine(40+x+(sx/2), 66+y-16+5, 40+x+(sx/2)+4, 66+y+5, TH.menu_param);
+  spr.drawLine(40+x+(sx/2)+4, 66+y+5, 40+x+(sx/2)+17, 66+y+5, TH.menu_param);
 }
 
 static void drawBand(int x, int y, int sx)
@@ -1576,6 +1593,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_MODE:      drawMode(x, y, sx);      break;
     case CMD_STEP:      drawStep(x, y, sx);      break;
     case CMD_SEEK:      drawSeek(x, y, sx);      break;
+    case CMD_SCAN:      drawScan(x, y, sx);      break;
     case CMD_BAND:      drawBand(x, y, sx);      break;
     case CMD_BANDWIDTH: drawBandwidth(x, y, sx); break;
     case CMD_THEME:     drawTheme(x, y, sx);     break;

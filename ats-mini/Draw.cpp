@@ -92,11 +92,11 @@ void drawZoomedMenu(const char *text, bool force)
 {
   if (!zoomMenu && !force) return;
 
-  spr.fillSmoothRoundRect(RDS_OFFSET_X - 70 + 1, RDS_OFFSET_Y - 3 + 1, 148, 26, 4, TH.menu_bg);
+  spr.fillSmoothRoundRect(RDS_OFFSET_X - 72 + 1, RDS_OFFSET_Y - 3 + 1, 152, 26, 4, TH.menu_bg);
   spr.setTextDatum(TC_DATUM);
   spr.setTextColor(TH.menu_item, TH.menu_bg);
   spr.drawString(text, RDS_OFFSET_X + 5, RDS_OFFSET_Y, 4);
-  spr.drawSmoothRoundRect(RDS_OFFSET_X - 70, RDS_OFFSET_Y - 3, 4, 4, 150, 28, TH.menu_border, TH.menu_bg);
+  spr.drawSmoothRoundRect(RDS_OFFSET_X - 72, RDS_OFFSET_Y - 3, 4, 4, 154, 28, TH.menu_border, TH.menu_bg);
 }
 
 //
@@ -106,11 +106,7 @@ void drawMessage(const char *msg)
 {
   if(sleepOn()) return;
 
-  spr.setTextDatum(MC_DATUM);
-  spr.fillSmoothRoundRect(80, 40, 160, 40, 4, TH.text);
-  spr.fillSmoothRoundRect(81, 41, 158, 38, 4, TH.menu_bg);
-  spr.setTextColor(TH.text, TH.menu_bg);
-  spr.drawString(msg, 160, 62, 4);
+  drawZoomedMenu(msg, true);
   spr.pushSprite(0, 0);
 }
 

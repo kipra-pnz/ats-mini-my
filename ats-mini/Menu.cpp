@@ -75,14 +75,14 @@ Band *getCurrentBand() { return(&bands[bandIdx]); }
 #define MENU_VOLUME       2
 #define MENU_STEP         3
 #define MENU_SEEK         4
-#define MENU_MEMORY       5
-#define MENU_SQUELCH      6
-#define MENU_BW           7
-#define MENU_AGC_ATT      8
-#define MENU_AVC          9
-#define MENU_SOFTMUTE    10
-#define MENU_SETTINGS    11
-#define MENU_SCAN        12
+#define MENU_SCAN         5
+#define MENU_MEMORY       6
+#define MENU_SQUELCH      7
+#define MENU_BW           8
+#define MENU_AGC_ATT      9
+#define MENU_AVC         10
+#define MENU_SOFTMUTE    11
+#define MENU_SETTINGS    12
 
 int8_t menuIdx = MENU_VOLUME;
 
@@ -93,6 +93,7 @@ static const char *menu[] =
   "Volume",
   "Step",
   "Seek",
+  "Scan",
   "Memory",
   "Squelch",
   "Bandwidth",
@@ -100,7 +101,6 @@ static const char *menu[] =
   "AVC",
   "SoftMute",
   "Settings",
-//  "Scan",
 };
 
 //

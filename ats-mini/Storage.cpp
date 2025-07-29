@@ -60,13 +60,13 @@ struct SavedBand
   int16_t bandCal;        // Calibration value
 };
 
-void prefsSaveBand(uint8_t idx)
+void prefsSaveBand(uint8_t idx, bool openPrefs)
 {
   SavedBand value;
   char name[32];
 
   // Will be saving to bands
-  prefs.begin("bands", false);
+  if(openPrefs) prefs.begin("bands", false);
 
   // Compose preference name and value
   sprintf(name, "Band-%d", idx);
@@ -80,16 +80,16 @@ void prefsSaveBand(uint8_t idx)
   prefs.putBytes(name, &value, sizeof(value));
   
   // Done with band preferences
-  prefs.end();
+  if(openPrefs) prefs.end();
 }
 
-bool prefsLoadBand(uint8_t idx)
+bool prefsLoadBand(uint8_t idx, bool openPrefs)
 {
   SavedBand value;
   char name[32];
 
   // Will be loading from bands
-  prefs.begin("bands", true);
+  if(openPrefs) prefs.begin("bands", true);
 
   // Compose preference name
   sprintf(name, "Band-%d", idx);
@@ -106,18 +106,18 @@ bool prefsLoadBand(uint8_t idx)
   }
 
   // Done with band preferences
-  prefs.end();
+  if(openPrefs) prefs.end();
 
   // Done
   return(result);
 }
 
-void prefsSaveMemory(uint8_t idx)
+void prefsSaveMemory(uint8_t idx, bool openPrefs)
 {
   char name[32];
 
   // Will be saving to memories
-  prefs.begin("memories", false);
+  if(openPrefs) prefs.begin("memories", false);
   
   // Compose preference name
   sprintf(name, "Memory-%d", idx);
@@ -126,15 +126,15 @@ void prefsSaveMemory(uint8_t idx)
   prefs.putBytes(name, &memories[idx], sizeof(memories[idx]));
   
   // Done with memory preferences
-  prefs.end();
+  if(openPrefs) prefs.end();
 }
 
-bool prefsLoadMemory(uint8_t idx)
+bool prefsLoadMemory(uint8_t idx, bool openPrefs)
 {
   char name[32];
 
   // Will be loading from memories
-  prefs.begin("memories", true);
+  if(openPrefs) prefs.begin("memories", true);
 
   // Compose preference name  
   sprintf(name, "Memory-%d", idx);
@@ -143,7 +143,7 @@ bool prefsLoadMemory(uint8_t idx)
   bool result = !!prefs.getBytes(name, &memories[idx], sizeof(memories[idx]));
 
   // Done with memory preferences
-  prefs.end();
+  if(openPrefs) prefs.end();
 
   // Done
   return(result);
@@ -161,8 +161,8 @@ void prefsSave(uint32_t items)
     prefs.begin("settings", false);
 
     // Save main global settings
-    prefs.putUChar("Version",  EEPROM_VERSION);    // Preferences version
-    prefs.putUShort("App",     APP_VERSION);       // Application version
+    prefs.putUChar("Version",  VER_SETTINGS);      // Settings version
+    prefs.putUShort("App",     VER_APP);           // Application version
     prefs.putUChar("Volume",   volume);            // Current volume
     prefs.putUChar("Band",     bandIdx);           // Current band
     prefs.putUShort("BFO",     currentBFOs);       // Current BFO % 1000
@@ -195,8 +195,13 @@ void prefsSave(uint32_t items)
 
   if(items & SAVE_BANDS)
   {
-    // Save current band settings
-    for(int i=0 ; i<getTotalBands() ; i++) prefsSaveBand(i);
+    // Will be saving to bands
+    prefs.begin("bands", false);
+    prefs.putUChar("Version",  VER_BANDS);
+    // Save band settings
+    for(int i=0 ; i<getTotalBands() ; i++) prefsSaveBand(i, false);
+    // Done with bands
+    prefs.end();
   }
   else if(items & SAVE_CUR_BAND)
   {
@@ -206,8 +211,13 @@ void prefsSave(uint32_t items)
 
   if(items & SAVE_MEMORIES)
   {
+    // Will be saving to memories
+    prefs.begin("memories", false);
+    prefs.putUChar("Version",  VER_MEMORIES);
     // Save current memories
-    for(int i=0 ; i<getTotalMemories() ; i++) prefsSaveMemory(i);
+    for(int i=0 ; i<getTotalMemories() ; i++) prefsSaveMemory(i, false);
+    // Done with memories
+    prefs.end();
   }
 
   // Preferences have been saved
@@ -216,22 +226,17 @@ void prefsSave(uint32_t items)
 
 bool prefsLoad(uint32_t items)
 {
-  if(items & SAVE_VERIFY)
-  {
-    // Will be loading from settings
-    prefs.begin("settings", true);
-    // Get currently saved versiob
-    uint8_t version = prefs.getUChar("Version");
-    // Done with settings
-    prefs.end();
-    // Must have the correct settings version
-    if(version != EEPROM_VERSION) return(false);
-  }
-
   if(items & SAVE_SETTINGS)
   {
     // Will be loading from settings
     prefs.begin("settings", true);
+
+    // Check currently saved version
+    if((items & SAVE_VERIFY) && (prefs.getUChar("Version") != VER_SETTINGS))
+    {
+      prefs.end();
+      return(false);
+    }
 
     // Load main global settings
     volume         = prefs.getUChar("Volume", volume);          // Current volume
@@ -264,8 +269,21 @@ bool prefsLoad(uint32_t items)
 
   if(items & SAVE_BANDS)
   {
-    // Read current band settings
-    for(int i=0 ; i<getTotalBands() ; i++) prefsLoadBand(i);
+    // Will be loading from bands
+    prefs.begin("bands", true);
+
+    // Check currently saved version
+    if((items & SAVE_VERIFY) && (prefs.getUChar("Version") != VER_BANDS))
+    {
+      prefs.end();
+      return(false);
+    }
+
+    // Read band settings
+    for(int i=0 ; i<getTotalBands() ; i++) prefsLoadBand(i, false);
+
+    // Done with bands
+    prefs.end();
   }
   else if(items & SAVE_CUR_BAND)
   {
@@ -275,8 +293,21 @@ bool prefsLoad(uint32_t items)
 
   if(items & SAVE_MEMORIES)
   {
-    // Read current memories
-    for(int i=0 ; i<getTotalMemories() ; i++) prefsLoadMemory(i);
+    // Will be loading from memories
+    prefs.begin("memories", true);
+
+    // Check currently saved version
+    if((items & SAVE_VERIFY) && (prefs.getUChar("Version") != VER_MEMORIES))
+    {
+      prefs.end();
+      return(false);
+    }
+
+    // Read all memories
+    for(int i=0 ; i<getTotalMemories() ; i++) prefsLoadMemory(i, false);
+
+    // Done with memories
+    prefs.end();
   }
 
   return(true);

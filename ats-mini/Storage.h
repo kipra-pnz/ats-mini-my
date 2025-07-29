@@ -21,9 +21,9 @@ bool diskInit(bool force = false);
 void prefsRequestSave(uint32_t what, bool now = false);
 void prefsSave(uint32_t items = SAVE_ALL);
 bool prefsLoad(uint32_t items = SAVE_ALL);
-void prefsSaveBand(uint8_t idx);
-bool prefsLoadBand(uint8_t idx);
-void prefsSaveMemory(uint8_t idx);
-bool prefsLoadMemory(uint8_t idx);
+void prefsSaveBand(uint8_t idx, bool openPrefs = true);
+bool prefsLoadBand(uint8_t idx, bool openPrefs = true);
+void prefsSaveMemory(uint8_t idx, bool openPrefs = true);
+bool prefsLoadMemory(uint8_t idx, bool openPrefs = true);
 
 #endif // STORAGE_H

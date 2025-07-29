@@ -13,8 +13,11 @@
 #define AUTHORS_LINE2  "Volos Projects, Ralph Xavier, Sunnygold,"
 #define AUTHORS_LINE3  "Goshante, G8PTN (Dave), R9UCL (Max Arnold),"
 #define AUTHORS_LINE4  "Marat Fayzullin"
-#define APP_VERSION    228  // FIRMWARE VERSION
-#define EEPROM_VERSION 71   // EEPROM VERSION (forces reset)
+
+#define VER_APP        228  // Firmware version
+#define VER_SETTINGS   71   // Settings version
+#define VER_MEMORIES   71   // Memories version
+#define VER_BANDS      71   // Bands version
 
 // Modes
 #define FM            0

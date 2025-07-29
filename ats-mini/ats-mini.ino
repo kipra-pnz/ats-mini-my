@@ -753,6 +753,7 @@ void loop()
       switch(currentCmd)
       {
         case CMD_NONE:
+        case CMD_SCAN:
           // Tuning
           needRedraw |= doTune(encoderCount);
           // Current frequency may have changed

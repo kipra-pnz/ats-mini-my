@@ -514,6 +514,16 @@ static void clickSeek(bool shortPress)
   if(shortPress) seekMode(true); else currentCmd = CMD_NONE;
 }
 
+static void clickScan(bool shortPress)
+{
+  if(shortPress)
+  {
+    drawMessage("Scanning...");
+    scanRun(currentFrequency, 10);
+  }
+  else currentCmd = CMD_NONE;
+}
+
 static void doTheme(int dir)
 {
   themeIdx = wrap_range(themeIdx, dir, 0, getTotalThemes() - 1);
@@ -921,6 +931,7 @@ bool clickHandler(uint16_t cmd, bool shortPress)
     case CMD_VOLUME:   clickVolume(shortPress);break;
     case CMD_SQUELCH:  clickSquelch(shortPress);break;
     case CMD_SEEK:     clickSeek(shortPress);break;
+    case CMD_SCAN:     clickScan(shortPress);break;
     case CMD_FREQ:     return(clickFreq(shortPress));
     default:           return(false);
   }

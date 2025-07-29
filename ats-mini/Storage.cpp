@@ -43,12 +43,19 @@ bool prefsAreWritten()
   return(result);
 }
 
-// Invlaidate currently saved preferences by setting their version to 0.
+// Invlaidate all currently saved preferences
 void prefsInvalidate()
 {
-  prefs.begin("settings", false);
-  prefs.putUChar("Version", 0);
-  prefs.end();
+  static const char *sections[] =
+  { "settings", "memories", "bands", "network", 0 };
+
+  // Clear all applicable sections
+  for(int j = 0 ; sections[j] ; ++j)
+  {
+    prefs.begin(sections[j], false);
+    prefs.clear();
+    prefs.end();
+  }
 }
 
 struct SavedBand
@@ -197,7 +204,7 @@ void prefsSave(uint32_t items)
   {
     // Will be saving to bands
     prefs.begin("bands", false);
-    prefs.putUChar("Version",  VER_BANDS);
+    prefs.putUChar("Version", VER_BANDS);
     // Save band settings
     for(int i=0 ; i<getTotalBands() ; i++) prefsSaveBand(i, false);
     // Done with bands
@@ -213,7 +220,7 @@ void prefsSave(uint32_t items)
   {
     // Will be saving to memories
     prefs.begin("memories", false);
-    prefs.putUChar("Version",  VER_MEMORIES);
+    prefs.putUChar("Version", VER_MEMORIES);
     // Save current memories
     for(int i=0 ; i<getTotalMemories() ; i++) prefsSaveMemory(i, false);
     // Done with memories
@@ -232,7 +239,7 @@ bool prefsLoad(uint32_t items)
     prefs.begin("settings", true);
 
     // Check currently saved version
-    if((items & SAVE_VERIFY) && (prefs.getUChar("Version") != VER_SETTINGS))
+    if((items & SAVE_VERIFY) && (prefs.getUChar("Version", 0) != VER_SETTINGS))
     {
       prefs.end();
       return(false);
@@ -273,7 +280,7 @@ bool prefsLoad(uint32_t items)
     prefs.begin("bands", true);
 
     // Check currently saved version
-    if((items & SAVE_VERIFY) && (prefs.getUChar("Version") != VER_BANDS))
+    if((items & SAVE_VERIFY) && (prefs.getUChar("Version", 0) != VER_BANDS))
     {
       prefs.end();
       return(false);
@@ -297,7 +304,7 @@ bool prefsLoad(uint32_t items)
     prefs.begin("memories", true);
 
     // Check currently saved version
-    if((items & SAVE_VERIFY) && (prefs.getUChar("Version") != VER_MEMORIES))
+    if((items & SAVE_VERIFY) && (prefs.getUChar("Version", 0) != VER_MEMORIES))
     {
       prefs.end();
       return(false);

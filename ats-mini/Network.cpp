@@ -75,16 +75,6 @@ void netTickTime()
 }
 
 //
-// Clear all settings
-//
-void netClearPreferences()
-{
-  prefs.begin("network", false);
-  prefs.clear();
-  prefs.end();
-}
-
-//
 // Get current connection status
 // (-1 - not connected, 0 - disabled, 1 - connected, 2 - connected to network)
 //

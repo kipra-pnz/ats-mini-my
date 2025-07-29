@@ -157,7 +157,6 @@ void setup()
   // Note: EEPROM reset is recommended after firmware updates
   if(digitalRead(ENCODER_PUSH_BUTTON)==LOW)
   {
-    netClearPreferences();
     prefsInvalidate();
     diskInit(true);
 
@@ -202,10 +201,10 @@ void setup()
   digitalWrite(PIN_AMP_EN, HIGH);
 
   // If loading preferences fails...
-  if(!prefsLoad(SAVE_ALL))
+  if(!prefsLoad(SAVE_SETTINGS|SAVE_VERIFY))
   {
     // Save default preferences
-    prefsSave(SAVE_ALL);
+    prefsSave(SAVE_SETTINGS);
     // Show initial screen with the QR code
     spr.fillSprite(TH.bg);
     ledcWrite(PIN_LCD_BL, currentBrt);
@@ -214,6 +213,12 @@ void setup()
     while(digitalRead(ENCODER_PUSH_BUTTON)!=LOW) delay(100);
     while(digitalRead(ENCODER_PUSH_BUTTON)==LOW) delay(100);
   }
+
+  // If loading memories fails, save default memories
+  if(!prefsLoad(SAVE_MEMORIES|SAVE_VERIFY)) prefsSave(SAVE_MEMORIES);
+
+  // If loading bands fails, save default bands
+  if(!prefsLoad(SAVE_BANDS|SAVE_VERIFY)) prefsSave(SAVE_BANDS);
 
   // SI4732 STARTUP!
   selectBand(bandIdx, false);

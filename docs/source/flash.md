@@ -13,7 +13,7 @@ The firmware releases are available on [GitHub](https://github.com/esp32-si4732/
 
 ![](_static/esp32-psram-variants.png)
 
-With the right firmware variant you should see a non-zero PSRAM amount on the Settings->About system info screen.
+With the right firmware variant you should see a non-zero PSRAM amount on the Settings->About system info screen. Also check out the following discussion: [OSPI vs QSPI: How can I see what I have?](https://github.com/esp32-si4732/ats-mini/discussions/174).
 ```
 
 A firmware archive contains the following files:

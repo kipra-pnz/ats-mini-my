@@ -513,7 +513,7 @@ bool doSeek(int8_t dir)
 //
 // Handle tuning
 //
-bool doTune(int8_t dir)
+bool doTune(int8_t dir, bool fast = false)
 {
   //
   // SSB tuning
@@ -526,7 +526,7 @@ bool doTune(int8_t dir)
     tuning_timer = millis();
 #endif
 
-    uint32_t step = getCurrentStep()->step;
+    uint32_t step = getCurrentStep(fast)->step;
     uint32_t stepAdjust = (currentFrequency * 1000 + currentBFO) % step;
     step = !stepAdjust? step : dir>0? step - stepAdjust : stepAdjust;
 
@@ -544,7 +544,7 @@ bool doTune(int8_t dir)
     tuning_timer = millis();
 #endif
 
-    uint16_t step = getCurrentStep()->step;
+    uint16_t step = getCurrentStep(fast)->step;
     uint16_t stepAdjust = currentFrequency % step;
     stepAdjust = (currentMode==FM) && (step==20)? (stepAdjust+10) % step : stepAdjust;
     step = !stepAdjust? step : dir>0? step - stepAdjust : stepAdjust;
@@ -736,6 +736,11 @@ void loop()
           needRedraw |= doTune(encoderCount);
           // Current frequency may have changed
           prefsRequestSave(SAVE_CUR_BAND);
+          break;
+        case CMD_SCAN:
+          // Fast tuning in scan mode
+          needRedraw |= doTune(encoderCount, true);
+          eepromRequestSave();
           break;
       }
 

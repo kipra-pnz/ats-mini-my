@@ -60,6 +60,10 @@ typedef struct __attribute__ ((packed))
   uint16_t scale_text;
   uint16_t scale_pointer;
   uint16_t scale_line;
+
+  uint16_t scan_grid;
+  uint16_t scan_snr;
+  uint16_t scan_rssi;
 } ColorTheme;
 
 extern uint8_t themeIdx;

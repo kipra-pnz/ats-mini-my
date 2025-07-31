@@ -835,8 +835,7 @@ static void clickMenu(int cmd, bool shortPress)
       // step as scale resolution (10kHz for AM, 100kHz for FM)
       currentCmd = CMD_SCAN;
       drawScreen(); // Redraw menu to reflect the currentCmd
-      drawMessage("Scanning...");
-      scanRun(currentFrequency, 10);
+      clickScan(true);
       break;
   }
 }
@@ -1118,6 +1117,12 @@ static void drawSeek(int x, int y, int sx)
 static void drawScan(int x, int y, int sx)
 {
   drawCommon(menu[MENU_SCAN], x, y, sx);
+  spr.setTextDatum(MC_DATUM);
+  spr.setTextColor(TH.scan_rssi, TH.menu_bg);
+  spr.drawString("S", 40+x+(sx/2)-30, 66+y+30, 2);
+  spr.setTextColor(TH.scan_snr, TH.menu_bg);
+  spr.drawString("N", 40+x+(sx/2)+30, 66+y+30, 2);
+
   spr.drawSmoothArc(40+x+(sx/2), 66+y, 30, 27, 45, 180, TH.menu_param, TH.menu_bg);
   spr.fillTriangle(40+x+(sx/2)-5, 66+y-32, 40+x+(sx/2)+5, 66+y-27, 40+x+(sx/2)-5, 66+y-22, TH.menu_param);
   spr.drawSmoothArc(40+x+(sx/2), 66+y, 30, 27, 225, 360, TH.menu_param, TH.menu_bg);

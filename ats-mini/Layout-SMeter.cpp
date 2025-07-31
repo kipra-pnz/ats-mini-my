@@ -192,7 +192,11 @@ void drawLayoutSmeter(const char *statusLine1, const char *statusLine2)
   // Indicate FM pilot detection (stereo indicator)
   drawAltStereoIndicator(ALT_STEREO_OFFSET_X, ALT_STEREO_OFFSET_Y, (currentMode==FM) && rx.getCurrentPilot());
 
-  if(!drawWiFiStatus(statusLine1, statusLine2, STATUS_OFFSET_X, STATUS_OFFSET_Y))
+  if(currentCmd == CMD_SCAN)
+  {
+    drawScanGraphs(isSSB()? (currentFrequency + currentBFO/1000) : currentFrequency);
+  }
+  else if(!drawWiFiStatus(statusLine1, statusLine2, STATUS_OFFSET_X, STATUS_OFFSET_Y))
   {
     // Show radio text if present, else show S & SN meters
     if(*getRadioText() || *getProgramInfo())

@@ -254,6 +254,7 @@ void drawFrequency(uint32_t freq, int x, int y, int ux, int uy, uint8_t hl)
 //
 void drawScale(uint32_t freq)
 {
+  // Scale pointer
   spr.fillTriangle(156, 120, 160, 130, 164, 120, TH.scale_pointer);
   spr.drawLine(160, 130, 160, 169, TH.scale_pointer);
 
@@ -299,10 +300,6 @@ void drawScale(uint32_t freq)
       {
         spr.drawLine(x, 169, x, 160, lineColor);
       }
-
-      int rssi = 20 * scanGetRSSI(freq * 10);
-      if(rssi > 0)
-        spr.fillRect(x-1, 170-rssi, 3, rssi, rssi>15? TH.smeter_bar_plus:TH.smeter_bar);
     }
   }
 }
@@ -370,6 +367,56 @@ void drawLongStationName(const char *name, int x, int y)
     spr.setTextDatum(TC_DATUM);
     spr.drawString(name, x + (320 - x + width) / 4, y, 2);
   }
+}
+
+//
+// Draw scan graphs
+//
+void drawScanGraphs(uint32_t freq)
+{
+  // Scale offset
+  int16_t offset = (freq % 10) / 10.0 * 8;
+
+  // Start drawing frequencies from the left
+  freq = freq / 10 - 20;
+
+  // Get band edges
+  const Band *band = getCurrentBand();
+  uint32_t minFreq = band->minimumFreq / 10;
+  uint32_t maxFreq = band->maximumFreq / 10;
+
+  for(int i=0 ; i<41 ; i++, freq++)
+  {
+    int16_t x = i * 8 - offset;
+
+    if(freq >= minFreq && freq <= maxFreq)
+    {
+      if((freq % 5) == 0) {
+        for(int y=0; y<42; y+=2) {
+          spr.drawPixel(x, 169-y, TH.scan_grid);
+        }
+      }
+
+      if((freq+1) <= maxFreq) {
+        for(int xd=x; xd<(x+8); xd+=2) {
+          spr.drawPixel(xd, 169-40, TH.scan_grid);
+          spr.drawPixel(xd, 169-30, TH.scan_grid);
+          spr.drawPixel(xd, 169-20, TH.scan_grid);
+          spr.drawPixel(xd, 169-10, TH.scan_grid);
+          spr.drawPixel(xd, 169-0, TH.scan_grid);
+        }
+        int snr1 = 40 * scanGetSNR(freq * 10);
+        int snr2 = 40 * scanGetSNR((freq+1) * 10);
+        spr.drawLine(x, 169-snr1, x+8, 169-snr2, TH.scan_snr);
+        int rssi1 = 40 * scanGetRSSI(freq * 10);
+        int rssi2 = 40 * scanGetRSSI((freq+1) * 10);
+        spr.drawLine(x, 169-rssi1, x+8, 169-rssi2, TH.scan_rssi);
+      }
+    }
+  }
+  // Scale pointer
+  spr.fillTriangle(156, 125, 160, 130, 164, 125, TH.scale_pointer);
+  spr.drawLine(160, 130, 160, 169, TH.scale_pointer);
 }
 
 //

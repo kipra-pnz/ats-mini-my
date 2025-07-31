@@ -34,6 +34,7 @@
 
 void drawMessage(const char *msg);
 void drawZoomedMenu(const char *text, bool force = false);
+void drawScanGraphs(uint32_t freq);
 void drawScreen(const char *statusLine1 = 0, const char *statusLine2 = 0);
 
 void drawWiFiIndicator(int x, int y);

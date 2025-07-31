@@ -47,6 +47,9 @@ ColorTheme theme[] =
     0xFFFF, // scale_text
     0xF800, // scale_pointer
     0xC638, // scale_line
+    0x94B2, // scan_grid
+    0x0659, // scan_snr
+    0x07E0, // scan_rssi
   },
 
   {
@@ -92,6 +95,9 @@ ColorTheme theme[] =
     0xFFFF, // scale_text
     0xF800, // scale_pointer
     0xC638, // scale_line
+    0x94B2, // scan_grid
+    0x07FF, // scan_snr
+    0x07E0, // scan_rssi
   },
 
   {
@@ -137,6 +143,9 @@ ColorTheme theme[] =
     0x18C3, // scale_text
     0x0000, // scale_pointer
     0x632C, // scale_line
+    0x94B2, // scan_grid
+    0x94B2, // scan_snr
+    0x18C3, // scan_rssi
   },
 
   {
@@ -182,6 +191,9 @@ ColorTheme theme[] =
     0x18C3, // scale_text
     0x0000, // scale_pointer
     0x1165, // scale_line
+    0x18C3, // scan_grid
+    0x2A25, // scan_snr
+    0x00C2, // scan_rssi
   },
 
   {
@@ -227,6 +239,9 @@ ColorTheme theme[] =
     0x18C3, // scale_text
     0x0000, // scale_pointer
     0x4208, // scale_line
+    0x6B4D, // scan_grid
+    0x5ACB, // scan_snr
+    0x2945, // scan_rssi
   },
 
   {
@@ -272,6 +287,9 @@ ColorTheme theme[] =
     0xD986, // scale_text
     0xF800, // scale_pointer
     0xB925, // scale_line
+    0x8925, // scan_grid
+    0x8925, // scan_snr
+    0xF800, // scan_rssi
   },
 
   {
@@ -317,6 +335,9 @@ ColorTheme theme[] =
     0x07AD, // scale_text
     0x5CF2, // scale_pointer
     0x2364, // scale_line
+    0x2364, // scan_grid
+    0x2364, // scan_snr
+    0x052D, // scan_rssi
   },
 
   {
@@ -362,6 +383,9 @@ ColorTheme theme[] =
     0x3FE0, // scale_text
     0xF800, // scale_pointer
     0xC638, // scale_line
+    0x6B4D, // scan_grid
+    0x001F, // scan_snr
+    0x07E0, // scan_rssi
   },
 
   {
@@ -407,6 +431,9 @@ ColorTheme theme[] =
     0xFFFF, // scale_text
     0x5005, // scale_pointer
     0xC638, // scale_line
+    0xD3F2, // scan_grid
+    0xD3F2, // scan_snr
+    0xFD95, // scan_rssi
   },
 };
 

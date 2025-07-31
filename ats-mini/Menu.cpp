@@ -539,6 +539,10 @@ static void clickScan(bool shortPress)
 {
   if(shortPress)
   {
+    // Clear stale parameters
+    clearStationInfo();
+    rssi = snr = 0;
+    drawScreen();
     drawMessage("Scanning...");
     scanRun(currentFrequency, 10);
   }
@@ -855,7 +859,6 @@ static void clickMenu(int cmd, bool shortPress)
       // Run a band scan around current frequency with the same
       // step as scale resolution (10kHz for AM, 100kHz for FM)
       currentCmd = CMD_SCAN;
-      drawScreen(); // Redraw menu to reflect the currentCmd
       clickScan(true);
       break;
   }

@@ -127,10 +127,12 @@ void scanRun(uint16_t centerFreq, uint16_t step)
 {
   // Mute the audio
   tempMuteOn(true);
+  // Flag is set by rotary encoder and cleared on seek/scan entry
+  seekStop = false;
   // Save current frequency
   uint16_t curFreq = rx.getFrequency();
   // Scan the whole range
-  for(scanInit(centerFreq, step) ; scanTickTime() ; delay(SCAN_TIME));
+  for(scanInit(centerFreq, step) ; scanTickTime() && !checkStopSeeking(); delay(SCAN_TIME));
   // Restore current frequency
   rx.setFrequency(curFreq);
   // Unmute the audio

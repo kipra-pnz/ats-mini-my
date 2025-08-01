@@ -130,6 +130,7 @@ extern TFT_eSPI tft;
 
 extern bool tuning_flag;
 extern bool pushAndRotate;
+extern bool seekStop;
 extern uint8_t rssi;
 extern uint8_t snr;
 
@@ -174,6 +175,7 @@ bool updateBFO(int newBFO, bool wrap = true);
 bool doSeek(int8_t dir);
 bool clickFreq(bool shortPress);
 uint8_t doAbout(int dir);
+bool checkStopSeeking();
 
 // Battery.c
 float batteryMonitor();

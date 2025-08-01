@@ -480,7 +480,7 @@ bool doSeek(int8_t dir)
       clearStationInfo();
       rssi = snr = 0;
 
-      // G8PTN: Flag is set by rotary encoder and cleared on seek entry
+      // Flag is set by rotary encoder and cleared on seek/scan entry
       seekStop = false;
       rx.seekStationProgress(showFrequencySeek, checkStopSeeking, dir>0? 1 : 0);
       updateFrequency(rx.getFrequency(), true);

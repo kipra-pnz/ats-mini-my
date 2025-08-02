@@ -14,9 +14,9 @@
 // bands by deleting lines. Change bands by editing lines below.
 //
 // NOTE:
-// You have to RESET EEPROM after adding or removing lines in this
+// You have to RESET PREFERENCES after adding or removing lines in this
 // table. Turn your receiver on with the encoder push button pressed
-// at first time to RESET the EEPROM.
+// at first time to RESET the preferences.
 //
 
 int bandIdx = 0;

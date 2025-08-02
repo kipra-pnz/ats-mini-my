@@ -289,7 +289,7 @@ void remotePrintStatus()
 
   // Remote serial
   Serial.printf("%u,%u,%d,%d,%s,%s,%s,%s,%hu,%hu,%hu,%hu,%hu,%.2f,%hu\r\n",
-                APP_VERSION,
+                VER_APP,
                 currentFrequency,
                 currentBFO,
                 getCurrentBand()->bandCal,

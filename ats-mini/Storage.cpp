@@ -85,7 +85,7 @@ void prefsSaveBand(uint8_t idx, bool openPrefs)
 
   // Write a preference
   prefs.putBytes(name, &value, sizeof(value));
-  
+
   // Done with band preferences
   if(openPrefs) prefs.end();
 }
@@ -125,13 +125,13 @@ void prefsSaveMemory(uint8_t idx, bool openPrefs)
 
   // Will be saving to memories
   if(openPrefs) prefs.begin("memories", false);
-  
+
   // Compose preference name
   sprintf(name, "Memory-%d", idx);
-  
+
   // Write a preference
   prefs.putBytes(name, &memories[idx], sizeof(memories[idx]));
-  
+
   // Done with memory preferences
   if(openPrefs) prefs.end();
 }
@@ -143,7 +143,7 @@ bool prefsLoadMemory(uint8_t idx, bool openPrefs)
   // Will be loading from memories
   if(openPrefs) prefs.begin("memories", true);
 
-  // Compose preference name  
+  // Compose preference name
   sprintf(name, "Memory-%d", idx);
 
   // Write a preference
@@ -174,7 +174,7 @@ void prefsSave(uint32_t items)
     prefs.putUChar("Band",     bandIdx);           // Current band
     prefs.putUShort("BFO",     currentBFOs);       // Current BFO % 1000
     prefs.putUChar("WiFiMode", wifiModeIdx);       // WiFi connection mode
-   
+
     // Save additional global settings
     prefs.putUShort("Brightness", currentBrt);     // Brightness
     prefs.putUChar("FmAGC",       FmAgcIdx);       // FM AGC/ATTN

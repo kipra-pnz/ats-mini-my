@@ -88,7 +88,6 @@ The Wi-Fi mode (2.4GHz only) can be used for the following purposes (for now):
 * Viewing the receiver status (frequency, RSSI/SNR, volume, battery voltage, etc).
 * Viewing the Memory slots with saved frequencies.
 * Manage the receiver settings.
-* Backup/restore the settings (EEPROM). The restore function only works on compatible firmware versions (if the settings were changed significantly, the full reset is inavoidable).
 
 There are a couple of modes:
 
@@ -129,7 +128,7 @@ To reset the receiver settings (current band, frequency, favorite stations, down
 1. Switch off the receiver
 2. Press and hold the encoder
 3. Turn on the receiver
-4. Release the encoder after the `EEPROM Resetting` message appears
+4. Release the encoder after the `Resetting Preferences` message appears
 
 
 ## Bands table
@@ -173,7 +172,7 @@ A USB-serial interface is available to control and monitor the receiver. Use [Pu
 |--------------|---------------------|----------------------------------------------------------------------------------------------|
 | <kbd>R</kbd> | Rotate Encoder Up   | Tune the frequency up, scroll the menu, etc                                                  |
 | <kbd>r</kbd> | Rotate Encoder Down | Tune the frequency down, scroll the menu, etc                                                |
-| <kbd>e</kbd> | Encoder Button      | The <kbd>e</kbd> emulates a single push and can not be used for EEPROM reset or long press   |
+| <kbd>e</kbd> | Encoder Button      | The <kbd>e</kbd> emulates a single push and can not be used for preferences reset or long press   |
 | <kbd>V</kbd> | Volume Up           |                                                                                              |
 | <kbd>v</kbd> | Volume Down         |                                                                                              |
 | <kbd>B</kbd> | Next Band           |                                                                                              |

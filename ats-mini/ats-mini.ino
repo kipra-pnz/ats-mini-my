@@ -154,7 +154,7 @@ void setup()
   spr.setTextColor(TH.text, TH.bg);
 
   // Press and hold Encoder button to force an preferences reset
-  // Note: EEPROM reset is recommended after firmware updates
+  // Note: preferences reset is recommended after firmware updates
   if(digitalRead(ENCODER_PUSH_BUTTON)==LOW)
   {
     prefsInvalidate();
@@ -701,7 +701,7 @@ void loop()
     pb1st.wasClicked |= !!(revent & REMOTE_CLICK);
     int direction = revent >> REMOTE_DIRECTION;
     encoderCount = direction? direction : encoderCount;
-    if(revent & REMOTE_EEPROM) prefsRequestSave(SAVE_ALL);
+    if(revent & REMOTE_PREFS) prefsRequestSave(SAVE_ALL);
   }
 #endif
 
@@ -740,7 +740,7 @@ void loop()
         case CMD_SCAN:
           // Fast tuning in scan mode
           needRedraw |= doTune(encoderCount, true);
-          eepromRequestSave();
+          prefsRequestSave(SAVE_CUR_BAND);
           break;
       }
 

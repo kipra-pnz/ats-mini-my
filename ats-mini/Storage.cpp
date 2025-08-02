@@ -1,4 +1,3 @@
-#include "EEPROM.h"
 #include "Common.h"
 #include "Storage.h"
 #include "Themes.h"

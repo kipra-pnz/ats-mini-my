@@ -333,70 +333,70 @@ int remoteDoCommand(char key)
   {
     case 'R': // Rotate Encoder Clockwise
       event |= 1 << REMOTE_DIRECTION;
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'r': // Rotate Encoder Counterclockwise
       event |= -1 << REMOTE_DIRECTION;
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'e': // Encoder Push Button
       event |= REMOTE_CLICK;
       break;
     case 'B': // Band Up
       doBand(1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'b': // Band Down
       doBand(-1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'M': // Mode Up
       doMode(1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'm': // Mode Down
       doMode(-1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'S': // Step Up
       doStep(1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 's': // Step Down
       doStep(-1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'W': // Bandwidth Up
       doBandwidth(1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'w': // Bandwidth Down
       doBandwidth(-1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'A': // AGC/ATTN Up
       doAgc(1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'a': // AGC/ATTN Down
       doAgc(-1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'V': // Volume Up
       doVolume(1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'v': // Volume Down
       doVolume(-1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'L': // Backlight Up
       doBrt(1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'l': // Backlight Down
       doBrt(-1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'O':
       sleepOn(true);
@@ -406,11 +406,11 @@ int remoteDoCommand(char key)
       break;
     case 'I':
       doCal(1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'i':
       doCal(-1);
-      event |= REMOTE_EEPROM;
+      event |= REMOTE_PREFS;
       break;
     case 'C':
       remoteLogOn = false;
@@ -425,7 +425,7 @@ int remoteDoCommand(char key)
       break;
     case '#':
       if (remoteSetMemory())
-        event |= REMOTE_EEPROM;
+        event |= REMOTE_PREFS;
       break;
 
     case 'T':

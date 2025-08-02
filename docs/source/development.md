@@ -88,8 +88,8 @@ Once you are happy, add the resulting colors to `Theme.cpp`.
 
 ## Release process
 
-1. Bump the `APP_VERSION` constant in the `Common.h` file
-2. If the new version has a different EEPROM layout, bump the `EEPROM_VERSION` as well (it will force the EEPROM reset)
+1. Bump the `VER_APP` constant in the `Common.h` file
+2. If the new version has a different preferences layout, bump `VER_SETTINGS`, `VER_BANDS`, or `VER_MEMORIES` as well (it will force the corresponding preferences section reset)
 3. Generate the CHANGELOG.md by running `uv run towncrier build --version X.XX`
 4. Add and commit the changes with a message like "Release X.XX", then push them to the repository
 5. Once the build is complete, download, flash and test it!

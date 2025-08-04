@@ -26,7 +26,7 @@ Band bands[] =
 {
   {"VHF",  FM_BAND_TYPE, FM,   6400, 10800, 10390, 2, 0, 0},
   // All band. LW, MW and SW (from 150kHz to 30MHz)
-  {"ALL",  SW_BAND_TYPE, AM,    150, 30000, 15000, 1, 4, 0},
+  {"ALL",  SW_BAND_TYPE, AM,     50, 30000, 15000, 1, 4, 0},
   {"11M",  SW_BAND_TYPE, AM,  25600, 26100, 25850, 1, 4, 0},
   {"13M",  SW_BAND_TYPE, AM,  21500, 21900, 21650, 1, 4, 0},
   {"15M",  SW_BAND_TYPE, AM,  18900, 19100, 18950, 1, 4, 0},
